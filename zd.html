@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bandit Manchot – Lucky Wheel Overlay</title>
+<style>
+  body {
+    margin: 0;
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  .container {
+    background: rgba(0,0,0,0.6);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    text-align: center;
+    position: relative;
+  }
+  .title {
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  .slot {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  .reel {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 3px solid #00e0ff;
+    background: linear-gradient(to bottom, #007bff, #0056b3);
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  .strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    will-change: transform;
+  }
+  .tile {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  }
+  .cta {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #eee;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">LUCKY WHEEL</div>
+    <div class="slot">
+      <div class="reel" data-reel="0"><div class="strip"></div></div>
+      <div class="reel" data-reel="1"><div class="strip"></div></div>
+      <div class="reel" data-reel="2"><div class="strip"></div></div>
+    </div>
+    <div class="cta">Clique ou appuie sur "S" pour lancer</div>
+  </div>
+
+<script>
+const PRIZES = ["LOSE", "LOSE", "LOSE", "LOSE", "LOSE", "WIN🎁", "WIN🎁", "WIN🎁"];
+const reels = document.querySelectorAll('.reel .strip');
+
+function buildTiles() {
+  reels.forEach(reel => {
+    reel.innerHTML = '';
+    const all = [...PRIZES, ...PRIZES, ...PRIZES];
+    all.forEach(p => {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.textContent = p;
+      reel.appendChild(tile);
+    });
+  });
+}
+
+buildTiles();
+
+let spinning = false;
+function spin() {
+  if (spinning) return;
+  spinning = true;
+
+  reels.forEach((reel, i) => {
+    const tiles = reel.querySelectorAll('.tile');
+    const tileH = tiles[0].offsetHeight;
+    const target = Math.floor(Math.random() * PRIZES.length);
+    const loops = 3 + i; // chaque rouleau fait un peu plus de tours
+    const distance = loops * PRIZES.length * tileH + target * tileH;
+
+    reel.style.transition = 'transform 3s cubic-bezier(.17,.67,.83,.67)';
+    reel.style.transform = `translateY(${-distance}px)`;
+
+    setTimeout(() => {
+      reel.style.transition = 'none';
+      reel.style.transform = `translateY(${-target * tileH}px)`;
+      if (i === reels.length - 1) spinning = false;
+    }, 3100 + i * 200);
+  });
+}
+
+document.body.addEventListener('click', spin);
+window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 's') spin(); });
+</script>
+</body>
+</html>
